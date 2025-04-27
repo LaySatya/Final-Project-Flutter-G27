@@ -9,10 +9,20 @@ class ParticipantProvider with ChangeNotifier {
 
   List<Participant> get participants => _participants;
 
- void addParticipant(String name, String bib, Map<SegmentType, Segment> segments) {
+  void addParticipant(String name, String bib, Map<SegmentType, Segment> segments) {
+  // Check if the BIB number already exists
+  bool isBibExist = _participants.any((participant) => participant.bib == bib);
+
+  if (isBibExist) {
+    // Handle the case where the BIB number already exists
+    throw Exception('Participant with BIB number $bib already exists');
+  } else {
+    // Add the participant if BIB doesn't exist
     _participants.add(Participant(bib: bib, name: name, segments: segments));
     notifyListeners();
   }
+}
+
 
   void deleteParticipant(String bib) {
     _participants.removeWhere((participant) => participant.bib == bib);

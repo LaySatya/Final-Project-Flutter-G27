@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
 
-///
 /// Text Button rendering for the whole application
-///
 class RaceTextButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -17,15 +15,28 @@ class RaceTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Render the button
+    // Render the button with full width
     return SizedBox(
+      width: double.infinity, // Full width of the screen
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-            onTap: onPressed,
-            child: Text(text,
-                style:
-                    RaceTrackingTextStyles.button.copyWith(color: RaceTrackingColors.primary))),
+          onTap: onPressed,
+          child: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(vertical: 10.0), // Add padding for a better look
+            decoration: BoxDecoration(
+              color: RaceTrackingColors.primary,
+              borderRadius: BorderRadius.circular(8.0), // Optional: Rounded corners
+            ),
+            child: Text(
+              text,
+              style: RaceTrackingTextStyles.button.copyWith(
+                color: RaceTrackingColors.white,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
