@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'providers/participant_provider.dart';
 import 'providers/race_provider.dart';
-import 'ui/screens/home_screen.dart'; // We'll create this too
+import 'ui/screens/home_screen.dart';
 
 void main() {
   runApp(const RaceTrackingApp());

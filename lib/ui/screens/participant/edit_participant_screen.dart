@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:race_tracking_app/providers/participant_provider.dart';
-import 'package:race_tracking_app/models/segment.dart';  // Assuming you have a Segment model.
 import 'package:race_tracking_app/models/participant.dart';
+import 'package:race_tracking_app/models/segment.dart';  // Assuming you have a Segment model.
+import 'package:race_tracking_app/providers/participant_provider.dart';
+import 'package:race_tracking_app/ui/widgets/actions/race_text_button.dart'; // Import the RaceTextButton
+import 'package:race_tracking_app/ui/widgets/alerts/success_alert_dialog.dart'; // Import the SuccessAlertDialog
 
 class EditParticipantScreen extends StatefulWidget {
   final Participant participant;
@@ -47,20 +49,46 @@ class _EditParticipantScreenState extends State<EditParticipantScreen> {
               decoration: InputDecoration(labelText: 'BIB'),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            RaceTextButton(
+              text: 'Update Participant',
               onPressed: () {
                 final name = _nameController.text;
                 final bib = _bibController.text;
 
                 if (name.isNotEmpty && bib.isNotEmpty) {
-                  // Update the participant while keeping the same segments
-                  Provider.of<ParticipantProvider>(context, listen: false)
-                      .updateParticipant(widget.participant.bib, name, bib, _segments);
+                  try {
+                    // Update the participant while keeping the same segments
+                    Provider.of<ParticipantProvider>(context, listen: false)
+                        .updateParticipant(widget.participant.bib, name, bib, _segments);
 
-                  Navigator.pop(context);
+                    // Show success message
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SuccessAlertDialog(
+                          message: 'Participant updated successfully!',
+                        );
+                      },
+                    );
+
+                    // Close the dialog and screen after a delay
+                    Future.delayed(Duration(seconds: 2), () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.of(context).pop(); // Optionally, pop the screen
+                    });
+                  } catch (e) {
+                    // Show error message if an issue occurs
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${e.toString()}')),
+                    );
+                  }
+                } else {
+                  // Show validation error if fields are empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please fill in both fields.')),
+                  );
                 }
               },
-              child: Text('Update Participant'),
             ),
           ],
         ),

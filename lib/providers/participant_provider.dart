@@ -23,23 +23,36 @@ class ParticipantProvider with ChangeNotifier {
   }
 }
 
-
+  // delete participant
   void deleteParticipant(String bib) {
     _participants.removeWhere((participant) => participant.bib == bib);
     notifyListeners();
   }
 
   void updateParticipant(String oldBib, String newName, String newBib, Map<SegmentType, Segment> segments) {
-    final participantIndex = _participants.indexWhere((p) => p.bib == oldBib);
-    if (participantIndex != -1) {
-      _participants[participantIndex] = Participant(
-        bib: newBib,
-        name: newName,
-        segments: segments,
-      );
-      notifyListeners();
-    }
+  // Check if the new BIB already exists in the list
+  // ensure not the same with old other bib
+  final isBibExist = _participants.any((p) => p.bib == newBib && p.bib != oldBib);
+  
+  if (isBibExist) {
+    // show error if existing bib conflick with other
+    throw Exception('The BIB ID $newBib is already taken by another participant.');
   }
+  
+  // Proceed with updating the participant
+  final participantIndex = _participants.indexWhere((p) => p.bib == oldBib);
+  if (participantIndex != -1) {
+    _participants[participantIndex] = Participant(
+      bib: newBib,
+      name: newName,
+      segments: segments,
+    );
+    notifyListeners();
+  } else {
+    throw Exception('Participant not found.');
+  }
+}
+
 
   /// Track a segment for a participant
   void trackSegment(String bib, SegmentType type, int timeInSeconds) {

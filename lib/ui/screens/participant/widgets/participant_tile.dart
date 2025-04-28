@@ -23,7 +23,7 @@ class ParticipantTile extends StatelessWidget {
         children: [
           // Edit button
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: Icon(Icons.edit, color: Colors.blue,),
             onPressed: () {
               Navigator.push(
                 context,
@@ -35,7 +35,7 @@ class ParticipantTile extends StatelessWidget {
           ),
           // Delete button
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.delete, color: Colors.redAccent,),
             onPressed: () {
               // Show the delete confirmation dialog
               showDialog(
