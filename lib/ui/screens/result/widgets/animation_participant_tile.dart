@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:race_tracking_app/models/participant.dart';
+import 'package:race_tracking_app/ui/screens/result/result_detail_screen.dart';
 import 'package:race_tracking_app/ui/utils/rank_utils.dart';
 
 class AnimatedParticipantTile extends StatelessWidget {
@@ -43,7 +44,21 @@ class AnimatedParticipantTile extends StatelessWidget {
                   Expanded(flex: 2, child: Text(participant.bib)),
                   Expanded(flex: 4, child: Text(participant.name)),
                   Expanded(flex: 3, child: Text(formattedTime)),
-                  
+
+                  // Detail icon button click to see detail screen
+                  IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    color: Colors.grey[700],
+                    tooltip: 'View Details',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ResultDetailScreen(participant: participant),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
