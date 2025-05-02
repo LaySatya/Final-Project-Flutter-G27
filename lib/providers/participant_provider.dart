@@ -1,61 +1,49 @@
 import 'package:flutter/material.dart';
 
-import '../mock/mock_participants.dart'; // Your dummy data
 import '../models/participant.dart';
 import '../models/segment.dart';
+import '../repository/participant_repository.dart';
 
 class ParticipantProvider with ChangeNotifier {
-  List<Participant> _participants = dummyParticipants;
+  final ParticipantRepository _repository;
+
+  List<Participant> _participants = [];
+
+  ParticipantProvider(this._repository);
 
   List<Participant> get participants => _participants;
 
-  void addParticipant(String name, String bib, Map<SegmentType, Segment> segments) {
-  // Check if the BIB number already exists
-  bool isBibExist = _participants.any((participant) => participant.bib == bib);
-
-  if (isBibExist) {
-    // Handle the case where the BIB number already exists
-    throw Exception('Participant with BIB number $bib already exists');
-  } else {
-    // Add the participant if BIB doesn't exist
-    _participants.add(Participant(bib: bib, name: name, segments: segments));
-    notifyListeners();
-  }
-}
-
-  // delete participant
-  void deleteParticipant(String bib) {
-    _participants.removeWhere((participant) => participant.bib == bib);
+  Future<void> loadParticipants() async {
+    _participants = await _repository.getParticipants();
     notifyListeners();
   }
 
-  void updateParticipant(String oldBib, String newName, String newBib, Map<SegmentType, Segment> segments) {
-  // Check if the new BIB already exists in the list
-  // ensure not the same with old other bib
-  final isBibExist = _participants.any((p) => p.bib == newBib && p.bib != oldBib);
-  
-  if (isBibExist) {
-    // show error if existing bib conflick with other
-    throw Exception('The BIB ID $newBib is already taken by another participant.');
+  Future<void> addParticipant(String name, String bib, Map<SegmentType, Segment> segments) async {
+    final isBibExist = _participants.any((p) => p.bib == bib);
+    if (isBibExist) {
+      throw Exception('Participant with BIB number $bib already exists');
+    }
+    final newParticipant = Participant(bib: bib, name: name, segments: segments);
+    await _repository.addParticipant(newParticipant);
+    await loadParticipants();
   }
-  
-  // Proceed with updating the participant
-  final participantIndex = _participants.indexWhere((p) => p.bib == oldBib);
-  if (participantIndex != -1) {
-    _participants[participantIndex] = Participant(
-      bib: newBib,
-      name: newName,
-      segments: segments,
-    );
-    notifyListeners();
-  } else {
-    throw Exception('Participant not found.');
+
+  Future<void> deleteParticipant(String bib) async {
+    await _repository.deleteParticipant(bib);
+    await loadParticipants();
   }
-}
 
+  Future<void> updateParticipant(String oldBib, String newName, String newBib, Map<SegmentType, Segment> segments) async {
+    final isBibExist = _participants.any((p) => p.bib == newBib && p.bib != oldBib);
+    if (isBibExist) {
+      throw Exception('The BIB ID $newBib is already taken by another participant.');
+    }
+    final updatedParticipant = Participant(bib: newBib, name: newName, segments: segments);
+    await _repository.updateParticipant(oldBib, updatedParticipant);
+    await loadParticipants();
+  }
 
-  /// Track a segment for a participant
-  void trackSegment(String bib, SegmentType type, int timeInSeconds) {
+  Future<void> trackSegment(String bib, SegmentType type, int timeInSeconds) async {
     final participant = _participants.firstWhere((p) => p.bib == bib, orElse: () => throw Exception('Participant not found'));
     if (!participant.segments[type]!.isTracked) {
       participant.segments[type]!
@@ -65,8 +53,7 @@ class ParticipantProvider with ChangeNotifier {
     }
   }
 
-  /// Untrack a segment for a participant
-  void untrackSegment(String bib, SegmentType type) {
+  Future<void> untrackSegment(String bib, SegmentType type) async {
     final participant = _participants.firstWhere((p) => p.bib == bib, orElse: () => throw Exception('Participant not found'));
     if (participant.segments[type]!.isTracked) {
       participant.segments[type]!
@@ -76,14 +63,8 @@ class ParticipantProvider with ChangeNotifier {
     }
   }
 
-  /// Reset all participants
-  void resetParticipants() {
-    for (var p in _participants) {
-      p.segments.forEach((key, segment) {
-        segment.isTracked = false;
-        segment.timeInSeconds = 0;
-      });
-    }
-    notifyListeners();
+  Future<void> resetParticipants() async {
+    await _repository.resetParticipants();
+    await loadParticipants();
   }
 }

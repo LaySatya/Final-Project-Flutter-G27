@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+
 import '../models/race.dart';
+import '../models/segment.dart';
 
 class RaceProvider with ChangeNotifier {
-  Race _race = Race(status: RaceStatus.notStarted, elapsedTime: 0);
+  late Race _race;
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
 
+   bool get isRaceNotStarted => _race.status == RaceStatus.notStarted;
+  bool get isRaceOngoing => _race.status == RaceStatus.ongoing;
+  bool get isRaceFinished => _race.status == RaceStatus.finished;
+
   RaceProvider() {
+    _race = Race(
+      name: 'Race 1',
+      dateTime: DateTime.now(),
+      status: RaceStatus.notStarted,
+      elapsedTime: 0,
+      segments: [
+        Segment(type: SegmentType.swim),
+        Segment(type: SegmentType.cycle),
+        Segment(type: SegmentType.run),
+      ],
+    );
     _stopwatch = Stopwatch();
     _ticker = Ticker(_onTick);
   }
 
   Race get race => _race;
 
-  bool get isRaceOngoing => _race.status == RaceStatus.ongoing;
-  bool get isRaceNotStarted => _race.status == RaceStatus.notStarted;
-  bool get isRaceFinished => _race.status == RaceStatus.finished;
-
-  /// Start the race
   void startRace() {
     _race.status = RaceStatus.ongoing;
     _stopwatch.start();
@@ -25,7 +38,6 @@ class RaceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Stop the race
   void stopRace() {
     _race.status = RaceStatus.finished;
     _stopwatch.stop();
@@ -33,59 +45,28 @@ class RaceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reset the race
   void resetRace() {
-    _race.status = RaceStatus.notStarted;
+    _stopwatch.stop();
     _stopwatch.reset();
-    _race.elapsedTime = 0;
     _ticker.stop();
+    _race = Race(
+      name: 'Race 1',
+      dateTime: DateTime.now(),
+      status: RaceStatus.notStarted,
+      elapsedTime: 0,
+      segments: [
+        Segment(type: SegmentType.swim),
+        Segment(type: SegmentType.cycle),
+        Segment(type: SegmentType.run),
+      ],
+    );
     notifyListeners();
   }
 
   void _onTick(Duration elapsed) {
-    _race.elapsedTime = _stopwatch.elapsed.inSeconds;
-    notifyListeners();
-  }
-
-  void dispose() {
-    _ticker.dispose();
-    super.dispose();
-  }
-}
-
-/// Simple Ticker class (if you don't use flutter_hooks or any extra packages)
-class Ticker {
-  final void Function(Duration elapsed) onTick;
-  late final Stopwatch _stopwatch;
-  late final Duration _interval;
-  late bool _isActive;
-
-  Ticker(this.onTick) {
-    _stopwatch = Stopwatch();
-    _interval = const Duration(seconds: 1);
-    _isActive = false;
-  }
-
-  void start() {
-    if (_isActive) return;
-    _isActive = true;
-    _stopwatch.start();
-    _tick();
-  }
-
-  void stop() {
-    _isActive = false;
-    _stopwatch.stop();
-  }
-
-  void _tick() async {
-    while (_isActive) {
-      await Future.delayed(_interval);
-      onTick(_stopwatch.elapsed);
+    if (_race.status == RaceStatus.ongoing) {
+      _race.elapsedTime = _stopwatch.elapsed.inSeconds;
+      notifyListeners();
     }
-  }
-
-  void dispose() {
-    _isActive = false;
   }
 }
