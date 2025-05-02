@@ -10,14 +10,14 @@ class SuccessAlertDialog extends StatelessWidget {
     return AlertDialog(
       title: Text('Success'),
       content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text('OK'),
-        ),
-      ],
+      // actions: [
+      //   TextButton(
+      //     onPressed: () {
+      //       Navigator.of(context).pop();
+      //     },
+      //     child: Text('OK'),
+      //   ),
+      // ],
     );
   }
 }

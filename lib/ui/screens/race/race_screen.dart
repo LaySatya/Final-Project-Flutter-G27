@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:race_tracking_app/providers/race_provider.dart'; // Make sure path matches!
+import 'package:race_tracking_app/providers/participant_provider.dart';
+import 'package:race_tracking_app/providers/race_provider.dart';
+import 'package:race_tracking_app/ui/utils/time_utils.dart';
 
 class RaceControlScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final raceProvider = Provider.of<RaceProvider>(context);
+    final participantProvider = Provider.of<ParticipantProvider>(context, listen: false);
     final race = raceProvider.race;
-
-    String formatTime(int elapsedSeconds) {
-      final minutes = (elapsedSeconds ~/ 60).toString().padLeft(2, '0');
-      final seconds = (elapsedSeconds % 60).toString().padLeft(2, '0');
-      return "$minutes:$seconds";
-    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Race Control'),
+        title: const Text('Race Control'),
         actions: [
           if (raceProvider.isRaceFinished)
             IconButton(
-              icon: Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
               onPressed: () {
-                raceProvider.resetRace();
+                raceProvider.resetRace();                    // Reset race time
+                participantProvider.resetParticipants();     // Reset all segment times
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('All participant times have been cleared!')),
+                  const SnackBar(content: Text('Race and all participant times have been reset!')),
                 );
               },
               tooltip: 'Reset Race',
@@ -41,14 +39,18 @@ class RaceControlScreen extends StatelessWidget {
                   : raceProvider.isRaceOngoing
                       ? 'Race ongoing'
                       : 'Race finished!',
-              style: TextStyle(fontSize: 24),
+              style: const TextStyle(fontSize: 24),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+
+            // Display formatted time
             Text(
               formatTime(race.elapsedTime),
-              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 40),
+
+            const SizedBox(height: 40),
+
             if (raceProvider.isRaceNotStarted)
               ElevatedButton(
                 onPressed: () {
@@ -56,9 +58,9 @@ class RaceControlScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 ),
-                child: Text('START', style: TextStyle(fontSize: 24)),
+                child: const Text('START', style: TextStyle(fontSize: 24)),
               )
             else if (raceProvider.isRaceOngoing)
               ElevatedButton(
@@ -67,9 +69,9 @@ class RaceControlScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 ),
-                child: Text('STOP', style: TextStyle(fontSize: 24)),
+                child: const Text('STOP', style: TextStyle(fontSize: 24)),
               ),
           ],
         ),

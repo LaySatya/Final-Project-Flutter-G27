@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:race_tracking_app/models/segment.dart'; // Assuming you have a Segment model.
+import 'package:race_tracking_app/models/segment.dart';
 import 'package:race_tracking_app/providers/participant_provider.dart';
-import 'package:race_tracking_app/ui/widgets/actions/race_text_button.dart';
-import 'package:race_tracking_app/ui/widgets/alerts/success_alert_dialog.dart'; // Import SuccessAlertDialog
+import 'package:race_tracking_app/ui/widgets/alerts/success_alert_dialog.dart';
+import 'package:race_tracking_app/ui/widgets/button/race_text_button.dart';
 
 class AddParticipantScreen extends StatefulWidget {
   @override
@@ -14,8 +14,7 @@ class _AddParticipantScreenState extends State<AddParticipantScreen> {
   final _nameController = TextEditingController();
   final _bibController = TextEditingController();
 
-  // You can predefine some segments if needed
-  final Map<SegmentType, Segment> _segments = {}; // Empty segments map for now
+  final Map<SegmentType, Segment> _segments = {};
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +33,18 @@ class _AddParticipantScreenState extends State<AddParticipantScreen> {
               decoration: InputDecoration(labelText: 'BIB'),
             ),
             SizedBox(height: 20),
-            
-            // add participant button
+            // Add participant button
             RaceTextButton(
               text: "Add Participant",
-              onPressed: () {
+              onPressed: () async {
                 final name = _nameController.text;
                 final bib = _bibController.text;
 
                 if (name.isNotEmpty && bib.isNotEmpty) {
                   try {
+                    
                     // Attempt to add the participant
-                    Provider.of<ParticipantProvider>(context, listen: false)
+                    await Provider.of<ParticipantProvider>(context, listen: false)
                         .addParticipant(name, bib, _segments);
 
                     // Show success message
@@ -61,12 +60,12 @@ class _AddParticipantScreenState extends State<AddParticipantScreen> {
                     // Close the dialog and screen after a delay
                     Future.delayed(Duration(seconds: 2), () {
                       Navigator.of(context).pop(); // Close the dialog
-                      Navigator.of(context).pop(); // Optionally, pop the screen
+                      Navigator.of(context).pop(); // pop the screen
                     });
                   } catch (e) {
                     // Show error message if BIB already exists
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${e.toString()}')),
+                      SnackBar(content: Text('Error: ${e.toString()}')),
                     );
                   }
                 } else {

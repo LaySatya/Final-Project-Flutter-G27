@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:race_tracking_app/models/participant.dart';
 import 'package:race_tracking_app/models/segment.dart';  // Assuming you have a Segment model.
 import 'package:race_tracking_app/providers/participant_provider.dart';
-import 'package:race_tracking_app/ui/widgets/actions/race_text_button.dart'; // Import the RaceTextButton
+import 'package:race_tracking_app/ui/widgets/button/race_text_button.dart'; // Import the RaceTextButton
 import 'package:race_tracking_app/ui/widgets/alerts/success_alert_dialog.dart'; // Import the SuccessAlertDialog
 
 class EditParticipantScreen extends StatefulWidget {

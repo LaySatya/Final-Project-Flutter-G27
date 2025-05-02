@@ -11,5 +11,6 @@ class Participant {
     required this.segments,
   });
 
+
   int get totalTime => segments.values.fold(0, (sum, seg) => sum + seg.timeInSeconds);
 }

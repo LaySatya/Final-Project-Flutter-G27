@@ -10,4 +10,6 @@ class Segment {
     this.isTracked = false,
     this.timeInSeconds = 0,
   });
+
+  String get typeString => type.toString().split('.').last;
 }
