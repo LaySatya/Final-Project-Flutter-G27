@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:race_tracking_app/providers/race_provider.dart';
+import 'package:race_tracking_app/repository/firebase/firebase_participant_repository.dart';
 import 'package:race_tracking_app/repository/mock_participant_repository.dart';
 import 'package:race_tracking_app/repository/mock_segment_tracking_repository.dart';
 import 'models/segment.dart';
@@ -31,7 +32,7 @@ class RaceTrackingApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         // Provide ParticipantProvider with the repository
-        ChangeNotifierProvider(create: (_) => ParticipantProvider(MockParticipantRepository())),
+        ChangeNotifierProvider(create: (_) => ParticipantProvider(FirebaseParticipantRepository())),
         ChangeNotifierProvider(create: (_) => RaceProvider()),
         ChangeNotifierProvider(create: (_) => SegmentTrackingProvider(repository: segmentTrackingRepository)),
       ],

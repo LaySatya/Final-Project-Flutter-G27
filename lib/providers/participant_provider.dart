@@ -23,7 +23,7 @@ class ParticipantProvider with ChangeNotifier {
     if (isBibExist) {
       throw Exception('Participant with BIB number $bib already exists');
     }
-    final newParticipant = Participant(bib: bib, name: name, segments: segments);
+    final newParticipant = Participant(id: bib, bib: bib, name: name, segments: segments);
     await _repository.addParticipant(newParticipant);
     await loadParticipants();
   }
@@ -38,7 +38,7 @@ class ParticipantProvider with ChangeNotifier {
     if (isBibExist) {
       throw Exception('The BIB ID $newBib is already taken by another participant.');
     }
-    final updatedParticipant = Participant(bib: newBib, name: newName, segments: segments);
+    final updatedParticipant = Participant(id: newBib, bib: newBib, name: newName, segments: segments);
     await _repository.updateParticipant(oldBib, updatedParticipant);
     await loadParticipants();
   }
@@ -64,7 +64,10 @@ class ParticipantProvider with ChangeNotifier {
   }
 
   Future<void> resetParticipants() async {
-    await _repository.resetParticipants();
-    await loadParticipants();
+  for (var participant in _participants) {
+    await _repository.resetParticipant(participant.bib); // Reset each participant
   }
+  await loadParticipants(); // Reload the participants list after resetting
+}
+
 }
