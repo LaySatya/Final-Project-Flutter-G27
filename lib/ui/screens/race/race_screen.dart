@@ -13,11 +13,11 @@ class RaceControlScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Race Control'),
+        title: const Text('Race Control', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         actions: [
           if (raceProvider.isRaceFinished)
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh, color: Colors.white),
               onPressed: () {
                 raceProvider.resetRace();                    // Reset race time
                 participantProvider.resetParticipants();     // Reset all segment times
@@ -28,52 +28,96 @@ class RaceControlScreen extends StatelessWidget {
               tooltip: 'Reset Race',
             ),
         ],
+        backgroundColor: Colors.deepPurple,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              raceProvider.isRaceNotStarted
-                  ? 'Race not started yet'
-                  : raceProvider.isRaceOngoing
-                      ? 'Race ongoing'
-                      : 'Race finished!',
-              style: const TextStyle(fontSize: 24),
-            ),
-            const SizedBox(height: 20),
-
-            // Display formatted time
-            Text(
-              formatTime(race.elapsedTime),
-              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 40),
-
-            if (raceProvider.isRaceNotStarted)
-              ElevatedButton(
-                onPressed: () {
-                  raceProvider.startRace();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                ),
-                child: const Text('START', style: TextStyle(fontSize: 24)),
-              )
-            else if (raceProvider.isRaceOngoing)
-              ElevatedButton(
-                onPressed: () {
-                  raceProvider.stopRace();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                ),
-                child: const Text('STOP', style: TextStyle(fontSize: 24)),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Display Race Status with modern styling and icons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    raceProvider.isRaceNotStarted
+                        ? Icons.play_arrow
+                        : raceProvider.isRaceOngoing
+                            ? Icons.timer
+                            : Icons.check_circle,
+                    size: 40,
+                    color: Colors.deepPurple,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    raceProvider.isRaceNotStarted
+                        ? 'Race not started yet'
+                        : raceProvider.isRaceOngoing
+                            ? 'Race ongoing'
+                            : 'Race finished!',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: 20),
+
+              // Display formatted time in large, bold font
+              Text(
+                formatTime(race.elapsedTime),
+                style: const TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Buttons with modern design
+              if (raceProvider.isRaceNotStarted)
+                ElevatedButton(
+                  onPressed: () {
+                    raceProvider.startRace();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 8,
+                  ),
+                  child: const Text(
+                    'START',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                )
+              else if (raceProvider.isRaceOngoing)
+                ElevatedButton(
+                  onPressed: () {
+                    raceProvider.stopRace();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 8,
+                  ),
+                  child: const Text(
+                    'STOP',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
