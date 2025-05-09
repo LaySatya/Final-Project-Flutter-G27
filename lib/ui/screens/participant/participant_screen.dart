@@ -14,7 +14,7 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   @override
   void initState() {
     super.initState();
-      Provider.of<ParticipantProvider>(context, listen: false).loadParticipants();
+    Provider.of<ParticipantProvider>(context, listen: false).loadParticipants();
   }
 
   @override
