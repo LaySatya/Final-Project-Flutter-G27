@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../models/participant.dart';
 import '../models/segment.dart';
 import '../repository/participant_repository.dart';
 
 class ParticipantProvider with ChangeNotifier {
   final ParticipantRepository _repository;
-
   List<Participant> _participants = [];
 
   ParticipantProvider(this._repository);
@@ -28,7 +26,9 @@ class ParticipantProvider with ChangeNotifier {
       throw Exception('Participant with BIB number $bib already exists');
     }
     final newParticipant = Participant(
-      id: bib,
+      id:
+          DateTime.now().millisecondsSinceEpoch
+              .toString(), // Generate unique ID
       bib: bib,
       name: name,
       segments: segments,
@@ -43,65 +43,83 @@ class ParticipantProvider with ChangeNotifier {
   }
 
   Future<void> updateParticipant(
-    String oldBib,
+    String id,
     String newName,
     String newBib,
     Map<SegmentType, Segment> segments,
   ) async {
-    final isBibExist = _participants.any(
-      (p) => p.bib == newBib && p.bib != oldBib,
+    // Find the existing participant
+    final existingParticipant = _participants.firstWhere(
+      (p) => p.id == id,
+      orElse: () => throw Exception('Participant not found'),
     );
-    if (isBibExist) {
-      throw Exception(
-        'The BIB ID $newBib is already taken by another participant.',
-      );
+
+    // Check if new BIB is already taken by another participant
+    if (newBib != existingParticipant.bib &&
+        _participants.any((p) => p.bib == newBib)) {
+      throw Exception('BIB number $newBib is already taken');
     }
+
+    // Create updated participant
     final updatedParticipant = Participant(
-      id: newBib,
+      id: id, // Keep the same ID
       bib: newBib,
       name: newName,
       segments: segments,
     );
-    await _repository.updateParticipant(oldBib, updatedParticipant);
+
+    await _repository.updateParticipant(id, updatedParticipant);
     await loadParticipants();
   }
 
-  Future<void> trackSegment(
-    String bib,
-    SegmentType type,
-    int timeInSeconds,
-  ) async {
+  Future<void> resetParticipant({
+    required String participantId,
+    bool resetBib = false,
+    bool resetName = false,
+    String? newBib,
+    String? newName,
+  }) async {
+    // Find the existing participant
     final participant = _participants.firstWhere(
-      (p) => p.bib == bib,
+      (p) => p.id == participantId,
       orElse: () => throw Exception('Participant not found'),
     );
-    if (!participant.segments[type]!.isTracked) {
-      participant.segments[type]!
-        ..isTracked = true
-        ..timeInSeconds = timeInSeconds;
-      notifyListeners();
-    }
-  }
 
-  Future<void> untrackSegment(String bib, SegmentType type) async {
-    final participant = _participants.firstWhere(
-      (p) => p.bib == bib,
-      orElse: () => throw Exception('Participant not found'),
+    // Validate new BIB if provided
+    if (newBib != null || resetBib) {
+      final bibToUse = newBib ?? '';
+      if (bibToUse.isEmpty) throw Exception('BIB cannot be empty');
+      if (_participants.any(
+        (p) => p.bib == bibToUse && p.id != participantId,
+      )) {
+        throw Exception('BIB number $bibToUse is already taken');
+      }
+    }
+
+    // Create a new segments map with all segments reset
+    final resetSegments = Map<SegmentType, Segment>.fromIterable(
+      SegmentType.values,
+      key: (type) => type,
+      value: (type) => Segment(type: type),
     );
-    if (participant.segments[type]!.isTracked) {
-      participant.segments[type]!
-        ..isTracked = false
-        ..timeInSeconds = 0;
-      notifyListeners();
-    }
+
+    // Create updated participant
+    final resetParticipant = Participant(
+      id: participant.id,
+      bib: resetBib ? newBib ?? '' : participant.bib,
+      name: resetName ? newName ?? '' : participant.name,
+      segments: resetSegments,
+    );
+
+    await _repository.updateParticipant(participantId, resetParticipant);
+    await loadParticipants();
   }
 
-  Future<void> resetParticipants() async {
-    for (var participant in _participants) {
-      await _repository.resetParticipant(
-        participant.bib,
-      ); // Reset each participant
+  // reset all participants
+  Future<void> resetAllParticipants() async {
+    for (final participant in _participants) {
+      await resetParticipant(participantId: participant.id);
     }
-    await loadParticipants(); // Reload the participants list after resetting
+    await loadParticipants();
   }
 }
