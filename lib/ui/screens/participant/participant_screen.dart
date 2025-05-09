@@ -21,10 +21,12 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Participants'),
+        title: Text('Participants', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: Icon(Icons.add),
+            color: Colors.white,
             onPressed: () => _navigateToAddParticipantScreen(context),
           ),
         ],
