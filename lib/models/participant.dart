@@ -16,29 +16,37 @@ class Participant {
   // Convert Participant to JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'bib': bib,
       'name': name,
-      'segments': segments.map((key, value) => MapEntry(key.name, value.toJson())),
+      'segments': segments.map(
+        (key, value) => MapEntry(key.name, value.toJson()),
+      ),
     };
   }
 
-  // Create Participant from JSON
   factory Participant.fromJson(String id, Map<String, dynamic> json) {
-    final segmentsJson = json['segments'] as Map<String, dynamic>?;
-    final segments = segmentsJson?.map(
-      (key, value) => MapEntry(
-        SegmentType.values.firstWhere((e) => e.name == key),
-        Segment.fromJson(value),
-      ),
-    ) ??
-        {};
+    try {
+      final segmentsJson = json['segments'] as Map<String, dynamic>?;
+      final segments =
+          segmentsJson?.map(
+            (key, value) => MapEntry(
+              SegmentType.values.firstWhere((e) => e.name == key),
+              Segment.fromJson(value),
+            ),
+          ) ??
+          {};
 
-    return Participant(
-      id: id,
-      bib: json['bib'],
-      name: json['name'],
-      segments: segments,
-    );
+      return Participant(
+        id: id,
+        bib: json['bib'],
+        name: json['name'],
+        segments: segments,
+      );
+    } catch (e) {
+      // print("❌ Error parsing participant $id: $e");
+      return Participant(id: id, bib: 'unknown', name: 'error', segments: {});
+    }
   }
 
   // Total time is the sum of time in seconds for all segments
