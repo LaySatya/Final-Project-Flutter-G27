@@ -9,47 +9,95 @@ class SegmentTabs extends StatelessWidget {
   const SegmentTabs({
     required this.currentSegment,
     required this.onSegmentChanged,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            spreadRadius: 2,
-          ),
-        ],
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isDarkMode ? Colors.grey[850] : Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Swim Tab
+            _buildSegmentTab(context, SegmentType.swim, "SWIM", Icons.pool),
+            // Cycle Tab
+            _buildSegmentTab(
+              context,
+              SegmentType.cycle,
+              "CYCLE",
+              Icons.pedal_bike,
+            ),
+            // Run Tab
+            _buildSegmentTab(
+              context,
+              SegmentType.run,
+              "RUN",
+              Icons.directions_run,
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Swim Tab
-          SegmentTabButton(
-            segmentType: SegmentType.swim,
-            currentSegment: currentSegment,
-            label: "SWIM",
-            onTap: () => onSegmentChanged(SegmentType.swim),
+    );
+  }
+
+  Widget _buildSegmentTab(
+    BuildContext context,
+    SegmentType segmentType,
+    String label,
+    IconData icon,
+  ) {
+    final isSelected = currentSegment == segmentType;
+    final theme = Theme.of(context);
+
+    return Flexible(
+      child: GestureDetector(
+        onTap: () => onSegmentChanged(segmentType),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
           ),
-          // Cycle Tab
-          SegmentTabButton(
-            segmentType: SegmentType.cycle,
-            currentSegment: currentSegment,
-            label: "CYCLE",
-            onTap: () => onSegmentChanged(SegmentType.cycle),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color:
+                    isSelected
+                        ? Colors.white
+                        : theme.colorScheme.onSurface.withOpacity(0.7),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color:
+                      isSelected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ],
           ),
-          // Run Tab
-          SegmentTabButton(
-            segmentType: SegmentType.run,
-            currentSegment: currentSegment,
-            label: "RUN",
-            onTap: () => onSegmentChanged(SegmentType.run),
-          ),
-        ],
+        ),
       ),
     );
   }

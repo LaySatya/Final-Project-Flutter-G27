@@ -1,24 +1,13 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:race_tracking_app/providers/race_provider.dart';
 import 'package:race_tracking_app/repository/firebase/firebase_participant_repository.dart';
 import 'package:race_tracking_app/repository/firebase/firebase_segment_repository.dart';
-import 'package:race_tracking_app/repository/mock_participant_repository.dart';
-import 'package:race_tracking_app/repository/mock_segment_tracking_repository.dart';
-import 'models/segment.dart';
 import 'providers/participant_provider.dart';
 import 'providers/segment_tracking_provider.dart';
 import 'ui/screens/home_screen.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // try {
-  //   await Firebase.initializeApp();
-  //   print("✅ Firebase initialized successfully");
-  // } catch (e) {
-  //   print("❌ Firebase initialization failed: $e");
-  // }
   runApp(const RaceTrackingApp());
 }
 
@@ -27,16 +16,6 @@ class RaceTrackingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize the segments
-    // List<Segment> segments = [
-    //   Segment(type: SegmentType.swim),
-    //   Segment(type: SegmentType.cycle),
-    //   Segment(type: SegmentType.run),
-    // ];
-
-    // Create the repository with the segments
-    // final segmentTrackingRepository = MockSegmentTrackingRepository();
-
     return MultiProvider(
       providers: [
         // Provide ParticipantProvider with the repository

@@ -13,7 +13,6 @@ class Participant {
     required this.segments,
   });
 
-  // Convert Participant to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -39,21 +38,17 @@ class Participant {
 
       return Participant(
         id: id,
-        bib: json['bib'],
-        name: json['name'],
+        bib: json['bib'] ?? 'unknown',
+        name: json['name'] ?? 'unknown',
         segments: segments,
       );
     } catch (e) {
-      // print("❌ Error parsing participant $id: $e");
-      return Participant(id: id, bib: 'unknown', name: 'error', segments: {});
+      return Participant(id: id, bib: 'error', name: 'error', segments: {});
     }
   }
 
-  // Total time is the sum of time in seconds for all segments
   int get totalTime {
-    if (segments.isEmpty) {
-      return 0; // Return 0 if no segments are available
-    }
+    if (segments.isEmpty) return 0;
     return segments.values.fold(0, (sum, seg) => sum + seg.timeInSeconds);
   }
 }

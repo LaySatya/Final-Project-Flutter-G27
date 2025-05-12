@@ -1,106 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:race_tracking_app/providers/participant_provider.dart';
+import 'package:race_tracking_app/ui/widgets/alerts/success_alert_dialog.dart';
 
 class DeleteConfirmationDialog extends StatelessWidget {
-  final String bib;
+  final String id;
+  final String name;
   final ParticipantProvider participantProvider;
 
   const DeleteConfirmationDialog({
     Key? key,
-    required this.bib,
+    required this.id,
+    required this.name,
     required this.participantProvider,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final colors = theme.colorScheme;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: Padding(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.all(24),
+      child: Container(
         padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(28),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Row(
-              children: [
-                Icon(
-                  Icons.warning_rounded,
-                  color: Colors.orange[700],
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Delete Participant',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode ? Colors.white : Colors.deepPurple[800],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Content
-            Text(
-              'Are you sure you want to  delete this participant?',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'This action cannot be undone.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.red[600],
-                fontWeight: FontWeight.w500,
+            // Icon
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: colors.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.delete_rounded,
+                size: 32,
+                color: colors.onErrorContainer,
               ),
             ),
             const SizedBox(height: 24),
 
+            // Title
+            Text(
+              'Delete Participant $name?',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+
+            // Description
+            Text(
+              'This participant will be permanently removed from the event.\nThis action cannot be undone.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+
             // Buttons
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 // Cancel Button
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    foregroundColor:
-                        isDarkMode ? Colors.white70 : Colors.grey[700],
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.onSurface,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      side: BorderSide(color: colors.outline),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    child: const Text('Cancel'),
                   ),
-                  child: const Text('CANCEL'),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 16),
 
                 // Delete Button
-                ElevatedButton(
-                  onPressed: () {
-                    participantProvider.deleteParticipant(bib);
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[600],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      await participantProvider.deleteParticipant(id);
+                      Navigator.of(
+                        context,
+                      ).pop(); // Close the delete confirmation dialog
+
+                      // Show the success dialog          // close confirmation before alert success
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder:
+                            (_) => const SuccessAlertDialog(
+                              message:
+                                  'Participant has been successfully deleted.',
+                            ),
+                      );
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colors.error,
+                      foregroundColor: colors.onError,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
+                    child: const Text('Delete'),
                   ),
-                  child: const Icon(Icons.delete),
                 ),
               ],
             ),

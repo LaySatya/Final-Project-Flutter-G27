@@ -116,7 +116,8 @@ class ParticipantTile extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return DeleteConfirmationDialog(
-          bib: participant.id,
+          id: participant.id,
+          name: participant.name,
           participantProvider: participantProvider,
         );
       },

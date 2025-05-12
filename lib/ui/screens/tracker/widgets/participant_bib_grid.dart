@@ -1,97 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:race_tracking_app/models/participant.dart';
 import 'package:race_tracking_app/models/segment.dart';
 import 'package:race_tracking_app/providers/participant_provider.dart';
 import 'package:race_tracking_app/providers/race_provider.dart';
+import 'package:race_tracking_app/providers/segment_tracking_provider.dart';
 
 class ParticipantGrid extends StatelessWidget {
   final SegmentType currentSegment;
   final String Function(int seconds) formatElapsedTime;
+  final Function(Participant) onBibTap;
 
   const ParticipantGrid({
     Key? key,
     required this.currentSegment,
     required this.formatElapsedTime,
+    required this.onBibTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final participantProvider = Provider.of<ParticipantProvider>(context);
+    final segmentProvider = Provider.of<SegmentTrackingProvider>(context);
     final raceProvider = Provider.of<RaceProvider>(context);
-
-    final participants = participantProvider.participants;
+    final theme = Theme.of(context);
 
     return GridView.builder(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // Increased for smaller size
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 6,
-        childAspectRatio: 1,
+        crossAxisCount: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.9,
       ),
-      itemCount: participants.length,
+      itemCount: participantProvider.participants.length,
       itemBuilder: (context, index) {
-        final participant = participants[index];
-        final segment = participant.segments[currentSegment];
-        final isTracked = segment?.isTracked ?? false;
+        final participant = participantProvider.participants[index];
+        final isTracked = segmentProvider.isTracked(
+          participant.id,
+          currentSegment,
+        );
+        final segment = segmentProvider.getTrackedSegment(
+          participant.id,
+          currentSegment,
+        );
         final elapsed = segment?.timeInSeconds ?? 0;
 
-        return GestureDetector(
-          onTap: () {
-            if (!raceProvider.isRaceOngoing) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Race must be ongoing to track!')),
-              );
-              return;
-            }
+        return _buildBibCard(context, participant, isTracked, elapsed, theme);
+      },
+    );
+  }
 
-            if (isTracked) {
-              participantProvider.untrackSegment(participant.bib, currentSegment);
-            } else {
-              participantProvider.trackSegment(
-                participant.bib,
-                currentSegment,
-                raceProvider.race.elapsedTime,
-              );
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isTracked ? Colors.blue.shade600 : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: isTracked ? Colors.blue : Colors.grey.shade400,
-                width: 1,
+  Widget _buildBibCard(
+    BuildContext context,
+    Participant participant,
+    bool isTracked,
+    int elapsed,
+    ThemeData theme,
+  ) {
+    return GestureDetector(
+      onTap: () => onBibTap(participant),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: isTracked ? Colors.deepPurple[600] : theme.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(
+            color: isTracked ? Colors.deepPurple[800]! : theme.dividerColor,
+            width: 1.5,
+          ),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Bib Number
+            Text(
+              participant.bib,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color:
+                    isTracked
+                        ? Colors.white
+                        : theme.textTheme.titleMedium?.color,
               ),
             ),
-            padding: const EdgeInsets.all(4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  participant.bib,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isTracked ? Colors.white : Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                if (isTracked)
-                  Icon(Icons.check_circle, size: 14, color: Colors.white),
-                if (isTracked)
+            const SizedBox(height: 8),
+
+            // Tracking Status
+            if (elapsed > 0 && !isTracked)
+              Column(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                  const SizedBox(height: 4),
                   Text(
                     formatElapsedTime(elapsed),
                     style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.white,
+                      fontSize: 12,
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
-            ),
-          ),
-        );
-      },
+                ],
+              )
+            else if (isTracked)
+              Column(
+                children: [
+                  const Icon(Icons.timer, size: 18, color: Colors.white),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tracking...',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  Icon(
+                    Icons.timer_off,
+                    size: 18,
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tap to track',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

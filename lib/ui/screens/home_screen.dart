@@ -34,13 +34,19 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.deepPurple,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Participants'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Participants',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Race'),
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: 'Tracking'),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: 'Results'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.emoji_events),
+            label: 'Results',
+          ),
         ],
       ),
     );

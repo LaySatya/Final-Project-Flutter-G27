@@ -1,38 +1,60 @@
 import 'package:flutter/material.dart';
-
+import '../models/participant.dart';
 import '../models/result.dart';
 import '../repository/result_repository.dart';
 
 class ResultProvider with ChangeNotifier {
-  final ResultRepository _repository; // connect to repository
-
+  final ResultRepository _repository;
   List<Result> _results = [];
 
-  ResultProvider(this._repository); // pass repository when creating provider
+  ResultProvider(this._repository);
 
   List<Result> get results => _results;
 
-  /// Load results from repository
   Future<void> loadResults() async {
     _results = await _repository.getResults();
     notifyListeners();
   }
 
-  /// Add a new result manually
-  Future<void> addResult(Result result) async {
-    await _repository.addResult(result);
-    await loadResults();
+  Future<void> calculateResults(List<Participant> participants) async {
+    // Filter participants with at least one segment time
+    final validParticipants =
+        participants
+            .where((p) => p.segments.values.any((s) => s.timeInSeconds > 0))
+            .toList();
+
+    // Sort by total time
+    validParticipants.sort((a, b) => a.totalTime.compareTo(b.totalTime));
+
+    // Convert to results
+    final results =
+        validParticipants
+            .asMap()
+            .map((index, participant) {
+              return MapEntry(
+                index,
+                Result(
+                  rank: index + 1,
+                  bib: participant.id,
+                  name: participant.name,
+                  totalTime: participant.totalTime,
+                  segmentTimes: participant.segments.map(
+                    (key, value) => MapEntry(key, value.timeInSeconds),
+                  ),
+                ),
+              );
+            })
+            .values
+            .toList();
+
+    await _repository.saveAllResults(results);
+    _results = results;
+    notifyListeners();
   }
 
-  /// Delete a result
-  Future<void> deleteResult(String bib) async {
-    await _repository.deleteResult(bib);
-    await loadResults();
-  }
-
-  /// Reset all results
   Future<void> resetResults() async {
     await _repository.resetResults();
-    await loadResults();
+    _results = [];
+    notifyListeners();
   }
 }

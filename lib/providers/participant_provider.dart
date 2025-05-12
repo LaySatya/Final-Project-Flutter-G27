@@ -28,7 +28,7 @@ class ParticipantProvider with ChangeNotifier {
     final newParticipant = Participant(
       id:
           DateTime.now().millisecondsSinceEpoch
-              .toString(), // Generate unique ID
+              .toString(), // new participant id
       bib: bib,
       name: name,
       segments: segments,
