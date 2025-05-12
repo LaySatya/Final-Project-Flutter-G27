@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
+import 'package:race_tracking_app/providers/participant_provider.dart';
+import 'package:race_tracking_app/providers/segment_tracking_provider.dart';
 
 import '../models/race.dart';
 import '../models/segment.dart';
@@ -9,13 +12,14 @@ class RaceProvider with ChangeNotifier {
   late final Stopwatch _stopwatch;
   late final Ticker _ticker;
 
-   bool get isRaceNotStarted => _race.status == RaceStatus.notStarted;
+  // getter to get the status of race
+  bool get isRaceNotStarted => _race.status == RaceStatus.notStarted;
   bool get isRaceOngoing => _race.status == RaceStatus.ongoing;
   bool get isRaceFinished => _race.status == RaceStatus.finished;
 
   RaceProvider() {
     _race = Race(
-      name: 'Race 1',
+      name: 'Race',
       dateTime: DateTime.now(),
       status: RaceStatus.notStarted,
       elapsedTime: 0,
@@ -31,13 +35,35 @@ class RaceProvider with ChangeNotifier {
 
   Race get race => _race;
 
-  void startRace() {
+  // start race
+  void startRace(BuildContext context) {
     _race.status = RaceStatus.ongoing;
     _stopwatch.start();
     _ticker.start();
+
+    final participantProvider = Provider.of<ParticipantProvider>(
+      context,
+      listen: false,
+    );
+    final segmentTrackingProvider = Provider.of<SegmentTrackingProvider>(
+      context,
+      listen: false,
+    );
+
+    // start auto to track all the participants
+    for (var segment in _race.segments) {
+      for (var participant in participantProvider.participants) {
+        segmentTrackingProvider.startSegmentTracking(
+          participant.id,
+          segment.type,
+        );
+      }
+    }
+
     notifyListeners();
   }
 
+  // stop race
   void stopRace() {
     _race.status = RaceStatus.finished;
     _stopwatch.stop();
@@ -45,6 +71,7 @@ class RaceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // reset race
   void resetRace() {
     _stopwatch.stop();
     _stopwatch.reset();
@@ -60,6 +87,7 @@ class RaceProvider with ChangeNotifier {
         Segment(type: SegmentType.run),
       ],
     );
+
     notifyListeners();
   }
 
