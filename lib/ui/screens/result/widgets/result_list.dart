@@ -14,6 +14,19 @@ class ResultsList extends StatelessWidget {
     required this.trackingProvider,
   });
 
+  Color _getMedalColor(int index) {
+    switch (index) {
+      case 0:
+        return const Color(0xFFFFD700); // Gold
+      case 1:
+        return const Color(0xFFC0C0C0); // Silver
+      case 2:
+        return const Color(0xFFCD7F32); // Bronze
+      default:
+        return Colors.grey[300]!; // Default
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final sortedParticipants = List<Participant>.from(participants)
@@ -32,15 +45,16 @@ class ResultsList extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: ExpansionTile(
             leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              backgroundColor: _getMedalColor(index),
               child: Text(
                 '${index + 1}',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                style: const TextStyle(
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+
             title: Text(
               participant.name,
               style: Theme.of(

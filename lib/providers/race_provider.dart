@@ -72,10 +72,12 @@ class RaceProvider with ChangeNotifier {
   }
 
   // reset race
-  void resetRace() {
+  void resetRace(BuildContext context) {
     _stopwatch.stop();
     _stopwatch.reset();
     _ticker.stop();
+
+    // Reset race object
     _race = Race(
       name: 'Race 1',
       dateTime: DateTime.now(),
@@ -87,6 +89,19 @@ class RaceProvider with ChangeNotifier {
         Segment(type: SegmentType.run),
       ],
     );
+
+    // Reset participant tracking and results
+    final segmentTrackingProvider = Provider.of<SegmentTrackingProvider>(
+      context,
+      listen: false,
+    );
+    final participantProvider = Provider.of<ParticipantProvider>(
+      context,
+      listen: false,
+    );
+
+    segmentTrackingProvider.resetTracking();
+    participantProvider.resetAllParticipants();
 
     notifyListeners();
   }

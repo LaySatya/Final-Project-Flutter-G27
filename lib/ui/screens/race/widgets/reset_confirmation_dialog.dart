@@ -23,7 +23,7 @@ Future<void> showResetConfirmationDialog(
           TextButton(
             child: const Text('Reset', style: TextStyle(color: Colors.red)),
             onPressed: () {
-              raceProvider.resetRace();
+              raceProvider.resetRace(context);
               participantProvider.resetAllParticipants();
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(

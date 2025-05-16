@@ -46,12 +46,12 @@ class _EditParticipantScreenState extends State<EditParticipantScreen> {
         title: const Text('Edit Participant'),
         centerTitle: true,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save_outlined),
-            onPressed: _updateParticipant,
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.save_outlined),
+        //     onPressed: _updateParticipant,
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -143,10 +143,10 @@ class _EditParticipantScreenState extends State<EditParticipantScreen> {
                   elevation: 2,
                 ),
                 child: const Text(
-                  'UPDATE PARTICIPANT',
+                  'Update Participant',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    // fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
                 ),

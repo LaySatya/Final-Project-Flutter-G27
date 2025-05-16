@@ -22,7 +22,7 @@ class ParticipantGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final participantProvider = Provider.of<ParticipantProvider>(context);
     final segmentProvider = Provider.of<SegmentTrackingProvider>(context);
-    final raceProvider = Provider.of<RaceProvider>(context);
+    // final raceProvider = Provider.of<RaceProvider>(context);
     final theme = Theme.of(context);
 
     return GridView.builder(
